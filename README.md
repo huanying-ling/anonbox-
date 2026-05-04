@@ -29,7 +29,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/你的用户名/anonbox.git
+git clone https://github.com/huanying-ling/anonbox.git
 cd anonbox
 
 # 2. 配置环境变量
@@ -70,7 +70,7 @@ DB_PATH=                               # 数据库路径（可选，默认 ./dat
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/你的用户名/anonbox.git
+git clone https://github.com/huanying-ling/anonbox.git
 cd anonbox
 
 # 2. 创建 .env 文件
