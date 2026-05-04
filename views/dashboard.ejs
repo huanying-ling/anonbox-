@@ -1,0 +1,133 @@
+<%- include('partials/header', { title: '我的后台' }) %>
+
+<div class="dashboard">
+  <h1>我的后台</h1>
+
+  <% if (message) { %>
+    <div class="alert alert-info"><%= message %></div>
+  <% } %>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.total %></span>
+      <span class="stat-label">总提问</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.answered %></span>
+      <span class="stat-label">已回答</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.hidden %></span>
+      <span class="stat-label">已隐藏</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.public %></span>
+      <span class="stat-label">公开可见</span>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dash-main">
+      <h2>提问管理</h2>
+      <p class="text-muted">你的提问箱地址：<a href="/<%= user.slug %>" target="_blank">/<%= user.slug %></a></p>
+
+      <% if (questions.length === 0) { %>
+        <p class="empty-state">还没有收到任何提问</p>
+      <% } else { %>
+        <div class="question-list">
+          <% questions.forEach(function(q) { %>
+            <div class="question-card dash-card <%= q.is_pinned ? 'pinned' : '' %>">
+              <div class="card-toolbar">
+                <% if (q.is_pinned) { %><span class="pin-badge">置顶</span><% } %>
+                <% if (!q.is_answered) { %><span class="badge badge-warning">未回复</span><% } %>
+                <% if (q.is_hidden) { %><span class="badge badge-muted">已隐藏</span><% } %>
+
+                <div class="toolbar-actions">
+                  <form method="POST" action="/dashboard/questions/<%= q.id %>/toggle-pin" style="display:inline">
+                    <button class="btn btn-small"><%= q.is_pinned ? '取消置顶' : '置顶' %></button>
+                  </form>
+                  <form method="POST" action="/dashboard/questions/<%= q.id %>/toggle" style="display:inline">
+                    <button class="btn btn-small"><%= q.is_hidden ? '设为公开' : '隐藏' %></button>
+                  </form>
+                  <form method="POST" action="/dashboard/questions/<%= q.id %>/delete" style="display:inline" onsubmit="return confirm('确认删除？')">
+                    <button class="btn btn-small btn-danger">删除</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="q-header">
+                <span class="asker-name"><%= q.asker_nickname %></span>
+                <span class="q-time"><%= q.created_at %></span>
+              </div>
+              <div class="q-body"><%= q.question_text %></div>
+
+              <% if (q.answer_text) { %>
+                <div class="q-answer">
+                  <div class="answer-text"><%= q.answer_text.replace(/\n/g, '<br>') %></div>
+                  <div class="answer-time">回复于 <%= q.answered_at %></div>
+                </div>
+              <% } %>
+
+              <form method="POST" action="/dashboard/questions/<%= q.id %>/answer" class="answer-form">
+                <textarea name="answer_text" rows="3" placeholder="输入你的回答..."><%= q.answer_text %></textarea>
+                <button type="submit" class="btn btn-primary btn-small">保存回答</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="dash-sidebar">
+      <div class="sidebar-card">
+        <h3>提问箱设置</h3>
+        <form method="POST" action="/dashboard/settings" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>昵称</label>
+            <input type="text" name="display_name" value="<%= user.display_name %>" required>
+          </div>
+          <div class="form-group">
+            <label>头像</label>
+            <input type="file" name="avatar" accept=".png,.jpg,.jpeg,.gif,.webp">
+            <small>最大 2MB</small>
+            <% if (user.avatar) { %>
+              <div><img src="<%= user.avatar %>" alt="头像" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:8px"></div>
+            <% } %>
+          </div>
+          <div class="form-group">
+            <label>或头像 URL</label>
+            <input type="url" name="avatar_url" value="<%= user.avatar && !user.avatar.startsWith('/uploads/') ? user.avatar : '' %>">
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="accept_questions" value="1" <%= user.accept_questions ? 'checked' : '' %>>
+              接受新提问
+            </label>
+          </div>
+          <div class="form-group">
+            <label>提问字数上限</label>
+            <input type="number" name="question_limit" value="<%= user.question_limit %>" min="10" max="5000">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">保存设置</button>
+        </form>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>修改密码</h3>
+        <form method="POST" action="/dashboard/change-password">
+          <div class="form-group">
+            <label>当前密码</label>
+            <input type="password" name="current_password" required>
+          </div>
+          <div class="form-group">
+            <label>新密码</label>
+            <input type="password" name="new_password" required minlength="4">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">修改密码</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

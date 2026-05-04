@@ -1,0 +1,77 @@
+<%- include('../partials/header', { title: '问题管理 - 管理员' }) %>
+
+<div class="admin-page">
+  <div class="admin-nav">
+    <h1>问题管理</h1>
+    <div class="admin-nav-links">
+      <a href="/admin">仪表盘</a>
+      <a href="/admin/questions">问题管理</a>
+      <a href="/admin/boxes">提问箱管理</a>
+      <a href="/admin/banned">封禁管理</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <form method="GET" action="/admin/questions" class="filter-form">
+      <input type="text" name="slug" placeholder="按提问箱筛选" value="<%= filters.slug || '' %>">
+      <input type="text" name="ip" placeholder="按IP筛选" value="<%= filters.ip || '' %>">
+      <input type="date" name="date" value="<%= filters.date || '' %>">
+      <button type="submit" class="btn btn-small">筛选</button>
+      <a href="/admin/questions" class="btn btn-small">重置</a>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>提问箱</th>
+          <th>提问者</th>
+          <th>问题内容</th>
+          <th>回答</th>
+          <th>IP</th>
+          <th>时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% questions.forEach(function(q) { %>
+          <tr>
+            <td><%= q.id %></td>
+            <td><a href="/<%= q.box_slug %>"><%= q.box_slug %></a></td>
+            <td><%= q.asker_nickname %></td>
+            <td class="text-truncate" title="<%= q.question_text %>"><%= q.question_text.substring(0, 50) %><% if (q.question_text.length > 50) { %>...<% } %></td>
+            <td><%= q.is_answered ? '已回' : '<span class="text-warning">待回</span>' %></td>
+            <td>
+              <span title="<%= q.asker_ua %>"><%= q.asker_ip %></span>
+              <form method="POST" action="/admin/ban-ip" style="display:inline;margin-left:4px">
+                <input type="hidden" name="ip" value="<%= q.asker_ip %>">
+                <button class="btn btn-small btn-danger" title="封禁IP">封</button>
+              </form>
+            </td>
+            <td><%= q.created_at %></td>
+            <td>
+              <form method="POST" action="/admin/questions/<%= q.id %>/delete" style="display:inline" onsubmit="return confirm('确认删除？')">
+                <button class="btn btn-small btn-danger">删除</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <% if (currentPage > 1) { %>
+      <a href="/admin/questions?page=<%= currentPage - 1 %><%= filters.slug ? '&slug=' + filters.slug : '' %><%= filters.ip ? '&ip=' + filters.ip : '' %><%= filters.date ? '&date=' + filters.date : '' %>" class="btn btn-small">上一页</a>
+    <% } %>
+    <span class="page-info"><%= currentPage %> / <%= totalPages %></span>
+    <% if (currentPage < totalPages) { %>
+      <a href="/admin/questions?page=<%= currentPage + 1 %><%= filters.slug ? '&slug=' + filters.slug : '' %><%= filters.ip ? '&ip=' + filters.ip : '' %><%= filters.date ? '&date=' + filters.date : '' %>" class="btn btn-small">下一页</a>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

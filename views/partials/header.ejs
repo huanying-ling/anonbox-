@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- typeof title !== 'undefined' ? `<title>${title}</title>` : '<title>Anonbox</title>' %>
+  <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">Anonbox</a>
+      <nav class="nav-links">
+        <a href="/">首页</a>
+        <% if (user) { %>
+          <a href="/dashboard">我的后台</a>
+          <a href="/<%= user.slug %>">我的提问箱</a>
+          <a href="/logout">退出</a>
+        <% } else { %>
+          <a href="/register">创建提问箱</a>
+          <a href="/login">登录</a>
+        <% } %>
+      </nav>
+      <button class="menu-toggle" aria-label="菜单" onclick="this.parentElement.querySelector('.nav-links').classList.toggle('open')">☰</button>
+    </div>
+  </header>
+  <main class="container">

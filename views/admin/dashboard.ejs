@@ -1,0 +1,67 @@
+<%- include('../partials/header', { title: '管理员后台' }) %>
+
+<div class="admin-page">
+  <div class="admin-nav">
+    <h1>管理员后台</h1>
+    <div class="admin-nav-links">
+      <a href="/admin">仪表盘</a>
+      <a href="/admin/questions">问题管理</a>
+      <a href="/admin/boxes">提问箱管理</a>
+      <a href="/admin/banned">封禁管理</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </div>
+
+  <% if (message) { %>
+    <div class="alert <%= message.includes('错误') ? 'alert-error' : 'alert-info' %>"><%= message %></div>
+  <% } %>
+
+  <% if (admin.mustChangePassword) { %>
+    <div class="alert alert-warning">
+      你正在使用默认密码，请立即修改密码以确保安全！
+    </div>
+  <% } %>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.boxCount %></span>
+      <span class="stat-label">提问箱数</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.questionCount %></span>
+      <span class="stat-label">总问题数</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num"><%= stats.todayCount %></span>
+      <span class="stat-label">今日新增</span>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="sidebar-card">
+      <h3>首页公告</h3>
+      <form method="POST" action="/admin/announcement">
+        <div class="form-group">
+          <textarea name="announcement" rows="3" placeholder="输入公告内容，留空则不显示..."><%= announcement || '' %></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">保存公告</button>
+      </form>
+    </div>
+    <div class="sidebar-card">
+      <h3>修改管理员密码</h3>
+      <form method="POST" action="/admin/change-password">
+        <div class="form-group">
+          <label>当前密码</label>
+          <input type="password" name="current_password" required>
+        </div>
+        <div class="form-group">
+          <label>新密码</label>
+          <input type="password" name="new_password" required minlength="4">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">修改密码</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

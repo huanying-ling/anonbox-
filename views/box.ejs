@@ -1,0 +1,118 @@
+<%- include('partials/header', { title: box.display_name + ' 的提问箱' }) %>
+
+<div class="box-page">
+  <div class="box-header">
+    <div class="box-owner-avatar">
+      <% if (box.avatar) { %>
+        <img src="<%= box.avatar %>" alt="<%= box.display_name %>" onerror="this.src='/public/img/default-avatar.svg'">
+      <% } else { %>
+        <div class="avatar-placeholder large"><%= box.display_name[0] %></div>
+      <% } %>
+    </div>
+    <h1><%= box.display_name %> 的提问箱</h1>
+    <p class="box-desc">欢迎匿名提问！你的问题将匿名发送给 <%= box.display_name %></p>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert-success">提问已发送！</div>
+  <% } %>
+
+  <% if (box.accept_questions) { %>
+    <div class="ask-form-section">
+      <h2>匿名提问</h2>
+      <form id="ask-form" class="form-card">
+        <div class="form-group">
+          <label for="nickname">你的昵称（选填）</label>
+          <input type="text" id="nickname" name="nickname" placeholder="留空则显示为"匿名"">
+        </div>
+        <div class="form-group">
+          <label for="question">问题内容 <span class="required">*</span></label>
+          <textarea id="question" name="question" rows="3" required placeholder="写下你想问的问题..."></textarea>
+          <small>最多 <%= box.question_limit %> 字</small>
+        </div>
+        <button type="submit" class="btn btn-primary">发送提问</button>
+      </form>
+      <div id="ask-result"></div>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">该提问箱暂不接受新提问</div>
+  <% } %>
+
+  <div class="questions-section">
+    <h2>公开问答 (<%= totalPages > 0 ? (currentPage - 1) * 10 + questions.length + '/' + (totalPages * 10) : 0 %>)</h2>
+
+    <% if (questions.length === 0) { %>
+      <p class="empty-state">暂无公开问答</p>
+    <% } else { %>
+      <div class="question-list">
+        <% questions.forEach(function(q) { %>
+          <div class="question-card <%= q.is_pinned ? 'pinned' : '' %>">
+            <% if (q.is_pinned) { %>
+              <span class="pin-badge">置顶</span>
+            <% } %>
+            <div class="q-header">
+              <span class="asker-name"><%= q.asker_nickname %></span>
+              <span class="q-time"><%= q.created_at %></span>
+            </div>
+            <div class="q-body"><%= q.question_text %></div>
+            <% if (q.answer_text) { %>
+              <div class="q-answer">
+                <div class="answer-label"><%= box.display_name %> 的回答：</div>
+                <div class="answer-text"><%= q.answer_text.replace(/\n/g, '<br>') %></div>
+                <div class="answer-time"><%= q.answered_at %></div>
+              </div>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="pagination">
+        <% if (currentPage > 1) { %>
+          <a href="/<%= box.slug %>?page=<%= currentPage - 1 %>" class="btn btn-small">上一页</a>
+        <% } %>
+        <span class="page-info"><%= currentPage %> / <%= totalPages %></span>
+        <% if (currentPage < totalPages) { %>
+          <a href="/<%= box.slug %>?page=<%= currentPage + 1 %>" class="btn btn-small">下一页</a>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+document.getElementById('ask-form')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const resultDiv = document.getElementById('ask-result');
+  const btn = form.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = '发送中...';
+
+  const askUrl = '<%= visitMode ? "/visit/ask" : "/" + box.slug + "/ask" %>';
+  const body = new URLSearchParams({ nickname: form.nickname.value, question: form.question.value });
+  <% if (visitMode) { %>
+    body.append('slug', '<%= box.slug %>');
+  <% } %>
+
+  try {
+    const res = await fetch(askUrl, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    });
+    const data = await res.json();
+    if (data.success) {
+      resultDiv.innerHTML = '<div class="alert alert-success">提问已发送！</div>';
+      form.reset();
+    } else {
+      resultDiv.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
+    }
+  } catch (err) {
+    resultDiv.innerHTML = '<div class="alert alert-error">发送失败，请重试</div>';
+  }
+  btn.disabled = false;
+  btn.textContent = '发送提问';
+});
+</script>
+
+<%- include('partials/footer') %>

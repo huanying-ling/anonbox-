@@ -1,0 +1,93 @@
+<%- include('partials/header', { title: '创建提问箱' }) %>
+
+<div class="form-page">
+  <h1>创建我的提问箱</h1>
+
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/register" enctype="multipart/form-data" class="form-card">
+    <div class="form-group">
+      <label for="username">用户名 <span class="required">*</span></label>
+      <input type="text" id="username" name="username" required placeholder="用于登录">
+    </div>
+
+    <div class="form-group">
+      <label for="slug">URL 标识 <span class="required">*</span></label>
+      <div class="slug-input">
+        <span class="slug-prefix">yourdomain.com/</span>
+        <input type="text" id="slug" name="slug" required placeholder="my-box" pattern="[a-z0-9-]+">
+      </div>
+      <small>仅支持小写字母、数字和连字符</small>
+      <span id="slug-status"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="password">密码 <span class="required">*</span></label>
+      <input type="password" id="password" name="password" required minlength="4" placeholder="至少4个字符">
+    </div>
+
+    <div class="form-group">
+      <label for="display_name">昵称 <span class="required">*</span></label>
+      <input type="text" id="display_name" name="display_name" required placeholder="你的展示昵称">
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" id="enable_password" onchange="toggleBoxPassword()">
+        设置访问密码（选填，不设则为公开提问箱）
+      </label>
+    </div>
+    <div class="form-group" id="box_password_group" style="display:none">
+      <input type="text" id="box_password" name="box_password" placeholder="设置访问密码" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="avatar">头像</label>
+      <input type="file" id="avatar" name="avatar" accept=".png,.jpg,.jpeg,.gif,.webp">
+      <small>支持 png/jpg/gif/webp，最大 2MB</small>
+    </div>
+
+    <div class="form-group">
+      <label for="avatar_url">或头像 URL</label>
+      <input type="url" id="avatar_url" name="avatar_url" placeholder="https://example.com/avatar.jpg">
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">创建提问箱</button>
+  </form>
+
+  <p class="form-footer">已有提问箱？<a href="/login">立即登录</a></p>
+</div>
+
+<script>
+function toggleBoxPassword() {
+  const checked = document.getElementById('enable_password').checked;
+  document.getElementById('box_password_group').style.display = checked ? 'block' : 'none';
+  if (!checked) document.getElementById('box_password').value = '';
+}
+
+const slugInput = document.getElementById('slug');
+const slugStatus = document.getElementById('slug-status');
+let checkTimer;
+
+slugInput.addEventListener('input', function() {
+  clearTimeout(checkTimer);
+  slugStatus.textContent = '';
+  const val = this.value.trim();
+  if (!val) return;
+  checkTimer = setTimeout(async () => {
+    try {
+      const res = await fetch('/api/check-slug?slug=' + encodeURIComponent(val));
+      const data = await res.json();
+      if (data.available) {
+        slugStatus.innerHTML = '<span class="text-success">可用</span>';
+      } else {
+        slugStatus.innerHTML = '<span class="text-error">已被使用</span>';
+      }
+    } catch (e) {}
+  }, 400);
+});
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,47 @@
+<%- include('../partials/header', { title: '封禁管理 - 管理员' }) %>
+
+<div class="admin-page">
+  <div class="admin-nav">
+    <h1>封禁管理</h1>
+    <div class="admin-nav-links">
+      <a href="/admin">仪表盘</a>
+      <a href="/admin/questions">问题管理</a>
+      <a href="/admin/boxes">提问箱管理</a>
+      <a href="/admin/banned">封禁管理</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>IP</th>
+          <th>封禁时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (banned.length === 0) { %>
+          <tr><td colspan="4">暂无封禁记录</td></tr>
+        <% } %>
+        <% banned.forEach(function(b) { %>
+          <tr>
+            <td><%= b.id %></td>
+            <td><%= b.ip %></td>
+            <td><%= b.created_at %></td>
+            <td>
+              <form method="POST" action="/admin/unban-ip" style="display:inline">
+                <input type="hidden" name="ip" value="<%= b.ip %>">
+                <button class="btn btn-small">解封</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

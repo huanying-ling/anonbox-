@@ -1,0 +1,64 @@
+<%- include('../partials/header', { title: '提问箱管理 - 管理员' }) %>
+
+<div class="admin-page">
+  <div class="admin-nav">
+    <h1>提问箱管理</h1>
+    <div class="admin-nav-links">
+      <a href="/admin">仪表盘</a>
+      <a href="/admin/questions">问题管理</a>
+      <a href="/admin/boxes">提问箱管理</a>
+      <a href="/admin/banned">封禁管理</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>用户名</th>
+          <th>Slug</th>
+          <th>昵称</th>
+          <th>访问密码</th>
+          <th>总问题</th>
+          <th>已回复</th>
+          <th>头像</th>
+          <th>注册时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (boxes.length === 0) { %>
+          <tr><td colspan="10" style="text-align:center;padding:2rem">暂无提问箱</td></tr>
+        <% } %>
+        <% boxes.forEach(function(b) { %>
+          <tr>
+            <td><%= b.id %></td>
+            <td><%= b.username %></td>
+            <td><a href="/<%= b.slug %>" target="_blank"><%= b.slug %></a></td>
+            <td><%= b.display_name %></td>
+            <td><%= b.box_password ? '🔒 ' + b.box_password : '🌐 无' %></td>
+            <td><%= b.total_questions %></td>
+            <td><%= b.answered_count %></td>
+            <td>
+              <% if (b.avatar) { %>
+                <img src="<%= b.avatar %>" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover">
+              <% } else { %>
+                <span style="color:#94a3b8">无</span>
+              <% } %>
+            </td>
+            <td><%= b.created_at %></td>
+            <td>
+              <form method="POST" action="/admin/boxes/<%= b.id %>/delete" style="display:inline" onsubmit="return confirm('确认删除该提问箱及其所有问题？此操作不可撤销！')">
+                <button class="btn btn-small btn-danger">删除</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

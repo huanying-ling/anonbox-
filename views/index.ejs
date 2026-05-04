@@ -1,0 +1,47 @@
+<%- include('partials/header', { title: 'Anonbox - 首页' }) %>
+
+<% if (announcement && announcement.trim()) { %>
+  <div class="announcement-banner">
+    <div class="announcement-content">
+      <span class="announcement-icon">📢</span>
+      <span class="announcement-text"><%= announcement %></span>
+    </div>
+  </div>
+<% } %>
+
+<section class="hero">
+  <h1>Anonbox</h1>
+  <p>创建你的 Anonbox，让朋友们畅所欲言</p>
+  <a href="/register" class="btn btn-primary">创建我的提问箱</a>
+</section>
+
+<section class="boxes-section">
+  <h2>已公开的提问箱</h2>
+  <% if (boxes.length === 0) { %>
+    <p class="empty-state">还没有公开的提问箱，快来创建第一个吧！</p>
+  <% } else { %>
+    <div class="box-grid">
+      <% boxes.forEach(function(box) { %>
+        <form action="/visit" method="POST" class="box-card-form">
+          <input type="hidden" name="slug" value="<%= box.slug %>">
+          <button type="submit" class="box-card">
+            <div class="box-avatar">
+              <% if (box.avatar) { %>
+                <img src="<%= box.avatar %>" alt="<%= box.display_name %>" onerror="this.src='/public/img/default-avatar.svg'">
+              <% } else { %>
+                <div class="avatar-placeholder"><%= box.display_name[0] %></div>
+              <% } %>
+            </div>
+            <div class="box-info">
+              <h3><%= box.display_name %></h3>
+              <span class="box-badge <%= box.box_password ? 'badge-private' : 'badge-public' %>"><%= box.box_password ? '🔒 私密' : '🌐 公开' %></span>
+              <span class="box-count"><%= box.public_count %> 条公开问答</span>
+            </div>
+          </button>
+        </form>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

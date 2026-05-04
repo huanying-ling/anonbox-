@@ -1,0 +1,20 @@
+{
+  "name": "askbox",
+  "version": "1.0.0",
+  "description": "Anonbox - 匿名提问箱网页应用",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "db:init": "node -e \"require('./db').init()\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "escape-html": "^1.0.3",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
+    "sql.js": "^1.11.0"
+  }
+}

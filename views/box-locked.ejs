@@ -1,0 +1,38 @@
+<%- include('partials/header', { title: box.display_name + ' 的提问箱' }) %>
+
+<div class="box-page">
+  <div class="box-header">
+    <div class="box-owner-avatar">
+      <% if (box.avatar) { %>
+        <img src="<%= box.avatar %>" alt="<%= box.display_name %>" onerror="this.src='/public/img/default-avatar.svg'">
+      <% } else { %>
+        <div class="avatar-placeholder large"><%= box.display_name[0] %></div>
+      <% } %>
+    </div>
+    <h1><%= box.display_name %> 的提问箱</h1>
+  </div>
+
+  <div class="password-gate">
+    <div class="lock-icon">🔒</div>
+    <h2>该提问箱已加密</h2>
+    <p>请输入访问密码以查看内容</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <% if (visitMode) { %>
+      <form method="POST" action="/visit/unlock" class="form-card">
+        <input type="hidden" name="slug" value="<%= box.slug %>">
+    <% } else { %>
+      <form method="POST" action="/<%= box.slug %>/unlock" class="form-card">
+    <% } %>
+      <div class="form-group">
+        <input type="password" name="box_password" required placeholder="输入访问密码" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">验证</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
